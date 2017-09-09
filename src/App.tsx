@@ -7,12 +7,12 @@ import { GameState, Tile } from './model'
 import { Action } from './server'
 import styled from 'glamorous'
 
-const getBorderColorForAssignment = (assignment: Tile['assignment']) =>
+const getFillColorForAssignment = (assignment: Tile['assignment']) =>
   assignment === 'red'
-    ? 'crimson'
+    ? '#DF3A28'
     : assignment === 'blue'
-      ? 'navy'
-      : assignment === 'assassin' ? 'white' : '#D5D5D5'
+      ? '#289AD3'
+      : assignment === 'assassin' ? '#333' : '#999'
 
 const TileWrapper = styled.div<{
   available: boolean
@@ -23,14 +23,13 @@ const TileWrapper = styled.div<{
     border: '0.3vw solid #EEE',
     borderRadius: 15,
     display: 'inline-block',
-    width: '13vw',
-    height: '10vh',
+    width: '16vw',
+    height: '11vh',
     margin: '1vw',
     boxSizing: 'border-box',
     textTransform: 'uppercase',
-    fontFamily: 'Museo Sans',
-    letterSpacing: 1.4,
-    fontSize: 22,
+    letterSpacing: 1.3,
+    fontSize: '1.6vw',
   },
   ({ available, assignment, revealed }) => ({
     ...available
@@ -41,9 +40,9 @@ const TileWrapper = styled.div<{
           },
         }
       : {},
-    color: revealed ? getBorderColorForAssignment(assignment) : '#444',
-    borderColor: revealed ? getBorderColorForAssignment(assignment) : '#444',
-    backgroundColor: revealed && assignment === 'assassin' ? '#333' : 'white',
+    backgroundColor: revealed ? getFillColorForAssignment(assignment) : 'white',
+    color: revealed ? 'white' : '#444',
+    borderColor: revealed ? getFillColorForAssignment(assignment) : '#444',
   }),
 )
 
@@ -60,9 +59,9 @@ const Row = styled.div({
   alignContent: 'center',
 })
 const PageContainer = styled.div({
-  height: '100%',
   width: '100%',
   display: 'flex',
+  paddingTop: '4vw',
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
@@ -90,7 +89,6 @@ function assassinWasFound(gameState: GameState): boolean {
   for (let row = 0; row < 5; row++) {
     for (let col = 0; col < 5; col++) {
       const { assignment, guess } = gameState.tiles[row][col]
-      console.log({ assignment, guess })
       if (assignment === 'assassin' && guess) {
         return true
       }
@@ -100,7 +98,7 @@ function assassinWasFound(gameState: GameState): boolean {
 }
 
 function Tile(props: Tile & { viewerRole: ViewerRole; onPress(): void }) {
-  const available = props.guess === null
+  const available = props.guess === null && props.viewerRole === 'guesser'
   return (
     <TileWrapper
       onClick={available ? props.onPress : () => {}}
@@ -112,14 +110,6 @@ function Tile(props: Tile & { viewerRole: ViewerRole; onPress(): void }) {
     </TileWrapper>
   )
 }
-
-// const StatusWrapper =
-
-// function Status(props: {remainingForRed: number, remainingForBlue: number}) {
-//   return (
-
-//   )
-// }
 
 @observer
 class App extends React.Component {
@@ -140,11 +130,6 @@ class App extends React.Component {
   }
   @computed
   get isGameOver() {
-    console.log(
-      this.redStats.total === this.redStats.won,
-      this.blueStats.total === this.blueStats.won,
-      this.gameState && assassinWasFound(this.gameState),
-    )
     return (
       this.redStats.total === this.redStats.won ||
       this.blueStats.total === this.blueStats.won ||
@@ -259,8 +244,8 @@ class App extends React.Component {
     return (
       <div
         style={{
-          borderLeftWidth: 20,
-          borderRightWidth: 20,
+          borderLeftWidth: '4vw',
+          borderRightWidth: '4vw',
           borderTopWidth: 0,
           borderBottomWidth: 0,
           borderStyle: 'solid',
@@ -268,7 +253,7 @@ class App extends React.Component {
           borderColor: this.isGameOver
             ? '#333'
             : this.gameState
-              ? getBorderColorForAssignment(this.gameState.currentTeam)
+              ? getFillColorForAssignment(this.gameState.currentTeam)
               : 'white',
         }}
       >
