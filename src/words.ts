@@ -392,7 +392,7 @@ export default [
   'Light',
   'Death',
   'Stock',
-  'Millionarie',
+  'Millionaire',
   'Day',
   'Knight',
   'Pie',
