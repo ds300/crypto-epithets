@@ -24,13 +24,13 @@ const TileWrapper = styled.div<{
     borderRadius: 15,
     display: 'inline-block',
     width: '13vw',
-    height: '13vh',
+    height: '10vh',
     margin: '1vw',
     boxSizing: 'border-box',
     textTransform: 'uppercase',
     fontFamily: 'Museo Sans',
     letterSpacing: 1.4,
-    fontSize: 20,
+    fontSize: 22,
   },
   ({ available, assignment, revealed }) => ({
     ...available
