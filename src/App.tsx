@@ -18,6 +18,7 @@ const TileWrapper = styled.div<{
   available: boolean
   assignment: Tile['assignment']
   revealed: boolean
+  viewerRole: ViewerRole
 }>(
   {
     border: '0.3vw solid #EEE',
@@ -31,7 +32,7 @@ const TileWrapper = styled.div<{
     letterSpacing: 1.3,
     fontSize: '1.6vw',
   },
-  ({ available, assignment, revealed }) => ({
+  ({ available, assignment, revealed, viewerRole }) => ({
     ...available
       ? {
           ':hover': {
@@ -40,9 +41,16 @@ const TileWrapper = styled.div<{
           },
         }
       : {},
-    backgroundColor: revealed ? getFillColorForAssignment(assignment) : 'white',
-    color: revealed ? 'white' : '#444',
-    borderColor: revealed ? getFillColorForAssignment(assignment) : '#444',
+    backgroundColor:
+      revealed || viewerRole === 'codemaster'
+        ? getFillColorForAssignment(assignment)
+        : 'white',
+    opacity: viewerRole === 'codemaster' && revealed ? 0.3 : 1,
+    color: revealed || viewerRole === 'codemaster' ? 'white' : '#444',
+    borderColor:
+      revealed || viewerRole === 'codemaster'
+        ? getFillColorForAssignment(assignment)
+        : '#444',
   }),
 )
 
@@ -104,7 +112,8 @@ function Tile(props: Tile & { viewerRole: ViewerRole; onPress(): void }) {
       onClick={available ? props.onPress : () => {}}
       available={available}
       assignment={props.assignment}
-      revealed={!available || props.viewerRole === 'codemaster'}
+      viewerRole={props.viewerRole}
+      revealed={props.guess !== null}
     >
       <WordWrapper>{props.word}</WordWrapper>
     </TileWrapper>
