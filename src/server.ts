@@ -1,4 +1,7 @@
-import { server as WebSocketServer } from 'websocket'
+import {
+  server as WebSocketServer,
+  connection as WebSocketConnection,
+} from 'websocket'
 import * as http from 'http'
 
 import { createStore } from 'redux'
@@ -26,6 +29,19 @@ const store = createStore((gameState: GameState, action: Action) => {
   }
 }, newGameState())
 
+const connections: WebSocketConnection[] = []
+
+function updateClients() {
+  connections.forEach(connection =>
+    connection.send(
+      JSON.stringify({
+        type: 'GAME_STATE',
+        payload: store.getState(),
+      }),
+    ),
+  )
+}
+
 const server = http.createServer((request, response) => {
   // process HTTP request. Since we're writing just WebSockets
   // server we don't have to implement anything.
@@ -41,26 +57,19 @@ const wsServer = new WebSocketServer({
 
 // WebSocket server
 wsServer.on('request', request => {
-  console.log('connected')
-  var connection = request.accept(void 0, request.origin)
+  console.log('someone connected')
+  const connection = request.accept(void 0, request.origin)
+  connections.push(connection)
+  updateClients()
 
-  function updateClient() {
-    connection.send(
-      JSON.stringify({
-        type: 'GAME_STATE',
-        payload: store.getState(),
-      }),
-    )
-  }
-
-  updateClient()
-
-  // This is the most important callback for us, we'll handle
-  // all messages from users here.
   connection.on('message', message => {
     if (message.type === 'utf8') {
       store.dispatch(JSON.parse(message.utf8Data as string))
-      updateClient()
+      updateClients()
     }
+  })
+
+  connection.on('close', () => {
+    connections.splice(connections.indexOf(connection), 1)
   })
 })
